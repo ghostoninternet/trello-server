@@ -1,5 +1,4 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
+// Domains that are allowed to request back-end resource
+export const WHITELIST_DOMAINS = [
+  'http://localhost:5173'
+]
