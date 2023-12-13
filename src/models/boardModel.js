@@ -36,19 +36,19 @@ const createNew = async (data) => {
   } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (id) => {
+const findOneById = async (boardId) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(boardId) })
     return result
   } catch (error) { throw new Error(error) }
 }
 
-const getDetails = async (id) => {
+const getDetails = async (boardId) => {
   try {
     // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       { $match: {
-        _id: new ObjectId(id),
+        _id: new ObjectId(boardId),
         _destroy: false
       } },
       { $lookup: {
@@ -68,12 +68,26 @@ const getDetails = async (id) => {
   } catch (error) { throw new Error(error) }
 }
 
-// Push a column id to the end of columnOrderIds array
+// Push a columnId to the end of columnOrderIds array
 const pushColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(column.boardId) },
       { $push: { columnOrderIds: new ObjectId(column._id) } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+// Pull a columnId out of columnOrderIds array
+const pullColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $pull: { columnOrderIds: new ObjectId(column._id) } },
       { returnDocument: 'after' }
     )
     return result
@@ -90,7 +104,7 @@ const update = async (boardId, updateData) => {
       }
     })
 
-    if (updateData.columnOrderIds) updateData.columnOrderIds.map(_id => (new ObjectId(_id)))
+    if (updateData.columnOrderIds) updateData.columnOrderIds.map(_id => new ObjectId(_id))
 
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(boardId) },
@@ -110,5 +124,6 @@ export const boardModel = {
   findOneById,
   getDetails,
   pushColumnOrderIds,
+  pullColumnOrderIds,
   update
 }
