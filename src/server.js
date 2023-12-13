@@ -22,9 +22,17 @@ const START_SERVER = () => {
   // Middleware to handle error
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`Hello ${env.AUTHOR}, I am running at http://${ env.APP_HOST }:${ env.APP_PORT }/`)
-  })
+  if (env.BUILD_MODE === 'production') {
+    // Production environment (supported by Render)
+    app.listen(process.env.PORT, () => {
+      console.log(`Production: Hello ${env.AUTHOR}, I am running at Port: ${process.env.PORT}`)
+    })
+  } else {
+    // Dev environment
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      console.log(`Hello ${env.AUTHOR}, I am running at http://${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
+    })
+  }
 
   // Doing cleanup before shutdown the server
   exitHook((signal) => {
