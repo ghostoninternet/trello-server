@@ -14,4 +14,7 @@ Router.route('/:id')
   .get(boardController.getDetails)
   .put(boardValidation.update, boardController.update)
 
+// API for supporting dragging card between difference columns in a same board
+Router.route('/supports/moving_card')
+  .put(boardValidation.moveCardToDifferenceColumn, boardController.moveCardToDifferenceColumn)
 export const boardRoute = Router
