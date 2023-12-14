@@ -5,6 +5,7 @@ import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
+import { ObjectId } from 'mongodb'
 
 const createNew = async (reqBody) => {
   // eslint-disable-next-line no-useless-catch
@@ -50,12 +51,12 @@ const moveCardToDifferenceColumn = async (reqBody) => {
   try {
     // Step 1: Update cardOrderIds of Column that contains the card (Delete the card from cardOrderIds)
     await columnModel.update(reqBody.prevColumnId, {
-      cardOrderIds: reqBody.prevCardOrderIds,
+      cardOrderIds: reqBody.prevCardOrderIds.map(cardId => new ObjectId(cardId)),
       updatedAt: Date.now()
     })
     // Step 2: Update cardOrderIds of Column that will hold the new card (Add the card id into cardOrderIds)
     await columnModel.update(reqBody.nextColumnId, {
-      cardOrderIds: reqBody.nextCardOrderIds,
+      cardOrderIds: reqBody.nextCardOrderIds.map(cardId => new ObjectId(cardId)),
       updatedAt: Date.now()
     })
     // Step 3: Update columnId field of the new card
