@@ -6,7 +6,7 @@ let trelloDatabaseInstance = null
 
 // Initialize a MongoClient instance to connect to MongoDB
 const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
-  // Note: serverApi only available to MongoDB version 5.0.0 and above, we may not use it, but if
+  // Note: serverApi only available to MongoDB version 5.0.0 and above, we may not need to use it, but if
   // we use it then it will specify a Stable API Version of MongoDB
   serverApi: {
     version: ServerApiVersion.v1,

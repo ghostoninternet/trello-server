@@ -25,6 +25,7 @@ const createNew = async (req, res, next) => {
   })
 
   try {
+    // abortEarly: In case there are many errors then we will show all errors (false case) else only show first error then stop validate (true case)
     await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
@@ -41,7 +42,7 @@ const update = async (req, res, next) => {
 
   try {
     // abortEarly: In case there are many errors then we will show all errors
-    // allowUnknown: In update case, allowUnknown allow us to not have to push some fields
+    // allowUnknown: When true, allows object to contain unknown keys which are ignored. Defaults to false.
     await correctCondition.validateAsync(req.body, {
       abortEarly: false,
       allowUnknown: true

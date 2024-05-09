@@ -11,9 +11,10 @@ import { corsOptions } from '~/config/cors'
 const START_SERVER = () => {
   const app = express()
 
+  // Enable CORS with options from corsOptions in config/cors.js
   app.use(cors(corsOptions))
 
-  // Enable req.body json data
+  // Enable JSON parsing for request body
   app.use(express.json())
 
   // Use APIs_V1
