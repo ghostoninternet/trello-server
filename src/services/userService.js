@@ -5,7 +5,7 @@ import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { pickUser } from '~/utils/formatter'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
-import { BrevoProvider } from '~/providers/brevoProvider'
+import { BrevoProvider } from '~/providers/BrevoProvider'
 
 const createNew = async (reqBody) => {
   try {
