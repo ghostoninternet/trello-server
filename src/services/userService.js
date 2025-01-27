@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { pickUser } from '~/utils/formatter'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { BrevoProvider } from '~/providers/brevoProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -28,6 +30,14 @@ const createNew = async (reqBody) => {
     const getNewUser = await userModel.findOneById(createUser.insertedId)
 
     // Send email for new account verification
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Trello MERN Stack Advanced: Please verify your email before using our services!'
+    const htmlContent = `
+      <h3>Here is your verification link</h3>
+      <h3>${verificationLink}</h3>
+      <h3>Sincerely, <br/> - Phuc Dao - </h3>
+    `
+    await BrevoProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
     // Return data
     return pickUser(getNewUser)
