@@ -7,6 +7,7 @@ import { pickUser } from '~/utils/formatter'
 import { WEBSITE_DOMAIN } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { JwtProvider } from '~/providers/JwtProvider'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 import { env } from '~/config/environment'
 
 const createNew = async (reqBody) => {
@@ -123,7 +124,7 @@ const refreshToken = async (clientRefreshToken) => {
   } catch (error) { throw error }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     const existUser = await userModel.findOneById(userId)
 
@@ -140,8 +141,12 @@ const update = async (userId, reqBody) => {
         throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Your current password is incorrect!')
       }
       updatedUser = await userModel.update(userId, { password: bcryptjs.hashSync(reqBody.new_password) })
+    } else if (userAvatarFile) {
+      // Case 2: Upload file to Cloud storage (Cloudinary)
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+      updatedUser = await userModel.update(userId, { avatar: uploadResult.secure_url })
     } else {
-      // Case 2: Update other field (ex: displayName)
+      // Case 3: Update other field (ex: displayName)
       updatedUser = await userModel.update(userId, reqBody)
     }
 
