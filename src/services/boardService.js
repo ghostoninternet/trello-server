@@ -18,22 +18,22 @@ const getBoards = async (userId, page, itemsPerPage) => {
   } catch (error) { throw error }
 }
 
-const createNew = async (reqBody) => {
+const createNew = async (reqBody, userId) => {
   // eslint-disable-next-line no-useless-catch
   try {
     const newBoard = {
       ...reqBody,
       slug: slugify(reqBody.title)
     }
-    const createdBoard = await boardModel.createNew(newBoard)
+    const createdBoard = await boardModel.createNew(newBoard, userId)
     const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
     return getNewBoard
   } catch (error) { throw error }
 }
 
-const getDetails = async (boardId) => {
+const getDetails = async (boardId, userId) => {
   try {
-    const board = await boardModel.getDetails(boardId)
+    const board = await boardModel.getDetails(boardId, userId)
     if (!board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board does not exists!')
     }

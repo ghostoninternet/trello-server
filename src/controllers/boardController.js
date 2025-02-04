@@ -12,8 +12,9 @@ const getBoards = async (req, res, next) => {
 
 const createNew = async (req, res, next) => {
   try {
+    const userId = req.jwtDecoded._id
     // Process data in Service layer
-    const createdBoard = await boardService.createNew(req.body)
+    const createdBoard = await boardService.createNew(req.body, userId)
     // Return result to FE
     res.status(StatusCodes.CREATED).json(createdBoard)
   } catch (error) { next(error) }
@@ -22,8 +23,9 @@ const createNew = async (req, res, next) => {
 const getDetails = async (req, res, next) => {
   try {
     const boardId = req.params.id
+    const userId = req.jwtDecoded._id
     // Process data in Service layer
-    const board = await boardService.getDetails(boardId)
+    const board = await boardService.getDetails(boardId, userId)
     // Return result to FE
     res.status(StatusCodes.OK).json(board)
   } catch (error) { next(error) }
