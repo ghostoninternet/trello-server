@@ -6,6 +6,7 @@ import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { BOARD_TYPES } from '~/utils/constants'
 import { pagingSkipValue } from '~/utils/algorithms'
+import { userModel } from './userModel'
 
 // Define collection (Name and Schema)
 const BOARD_COLLECTION_NAME = 'boards'
@@ -79,6 +80,24 @@ const getDetails = async (boardId, userId) => {
         localField:'_id', // board ID
         foreignField: 'boardId', // this field is from cards collection
         as: 'cards'
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'ownerIds',
+        foreignField: '_id',
+        as: 'owners',
+        // Pipeline in lookup: Processing one or more necessary stage
+        // $project: To discard some field that will not be included in query result
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'memberIds',
+        foreignField: '_id',
+        as: 'members',
+        // Pipeline in lookup: Processing one or more necessary stage
+        // $project: To discard some field that will not be included in query result
+        pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
       } }
     ]).toArray()
     return result[0] || null
@@ -167,8 +186,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
       ],
       { collation: { locale: 'en' } }
     ).toArray()
-    console.log('🚀 ~ getBoards ~ query:', query)
-    
+
     const res = query[0]
     return {
       boards: res.queryBoards || [],
