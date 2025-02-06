@@ -3,11 +3,14 @@ import express from 'express'
 import cors from 'cors'
 import exitHook from 'async-exit-hook'
 import cookieParser from 'cookie-parser'
+import socketIo from 'socket.io'
+import http from 'http'
 import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
 import { env } from '~/config/environment'
 import { APIs_V1 } from '~/routes/v1/index'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { corsOptions } from '~/config/cors'
+import { inviteUserToBoardSocket } from '~/sockets/inviteUserToBoardSocket'
 
 const START_SERVER = () => {
   const app = express()
@@ -34,14 +37,24 @@ const START_SERVER = () => {
   // Middleware to handle error
   app.use(errorHandlingMiddleware)
 
+  // Create new server wrap Express server to make realtime feature using SocketIO
+  const server = http.createServer(app)
+  const io = socketIo(server, {
+    cors: corsOptions
+  })
+
+  io.on('connection', (socket) => {
+    inviteUserToBoardSocket(socket)
+  })
+
   if (env.BUILD_MODE === 'production') {
     // Production environment (supported by Render)
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Production: Hello ${env.AUTHOR}, I am running at Port: ${process.env.PORT}`)
     })
   } else {
     // Dev environment
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`Hello ${env.AUTHOR}, I am running at http://${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }/`)
     })
   }
