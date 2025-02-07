@@ -155,7 +155,7 @@ const update = async (boardId, updateData) => {
   }
 }
 
-const getBoards = async (userId, page, itemsPerPage) => {
+const getBoards = async (userId, page, itemsPerPage, queryFilter) => {
   try {
     const queryConditions = [
       // Condition 01: Board is not deleted
@@ -164,9 +164,23 @@ const getBoards = async (userId, page, itemsPerPage) => {
       { $or: [
         { ownerIds: { $all: [new ObjectId(userId)] } },
         { memberIds: { $all: [new ObjectId(userId)] } }
-      ]
-      }
+      ] }
     ]
+
+    // Handle queryFilter
+    if (queryFilter) {
+      Object.keys(queryFilter).forEach(key => {
+        // Case sensitive
+        // queryConditions.push({
+        //   [key]: { $regex: queryFilter[key] }
+        // })
+
+        // Case insensitve
+        queryConditions.push({
+          [key]: { $regex: new RegExp(queryFilter[key], 'i') }
+        })
+      })
+    }
 
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [
